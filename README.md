@@ -1,6 +1,6 @@
 # ModbusMaven
 
-ModbusMaven is a tool under active development, aiming to provide a comprehensive solution for interacting with Modbus TCP/IP and Modbus RTU protocols.
+ModbusMaven is a tool under development, aiming to provide a tool Modbus TCP/IP and Modbus RTU protocols.
 
 ## Development Status
 
@@ -16,7 +16,7 @@ Our vision for ModbusMaven includes the following features:
 
 ## Contributing
 
-We welcome contributions to ModbusMaven. If you're interested in contributing, please see our [contributing guidelines](CONTRIBUTING.md) for more information.
+We welcome contributions to ModbusMaven. 
 
 ## License
 
