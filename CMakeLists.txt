@@ -3,13 +3,21 @@ project(ModbusMaven)
 
 set(CMAKE_CXX_STANDARD 20)
 set(LIBRARIES_DIR lib)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static -lpthread -lws2_32")
+
 
 add_executable(ModbusMaven
         vendor/imgui_impl_glfw.h
         vendor/imgui_impl_glfw.cpp
         vendor/imgui_impl_opengl3.h
         vendor/imgui_impl_opengl3.cpp
+        src/modbus_tcp.h
+        src/modbus_tcp.cpp
         src/main.cpp)
+
+# Link winsock2 library
+target_link_libraries(ModbusMaven wsock32 ws2_32)
+
 
 # glad
 set(GLAD_DIR "${LIBRARIES_DIR}/glad")

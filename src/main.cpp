@@ -6,8 +6,11 @@
 
 #include "../vendor/imgui_impl_glfw.h"
 #include "../vendor/imgui_impl_opengl3.h"
+#include "Modbus_Tcp.h"
 
 #define GLSL_VERSION "#version 330"
+
+static ModbusTcp modbusTcp;
 
 int main()
 {
@@ -63,7 +66,6 @@ int main()
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-
         // Create a full viewport for the docking space
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
@@ -74,12 +76,13 @@ int main()
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus;
         ImGui::Begin("ModbusMavenDock", nullptr, window_flags);
-       
+
         ImGui::PopStyleVar(3);
 
         // Dockspace
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
 
         // create a menu bar
         if (ImGui::BeginMenuBar())
@@ -96,12 +99,24 @@ int main()
             {
                 if (ImGui::MenuItem("Conncet to Modbus TCP/IP"))
                 {
+                    std::cout << "Trying to connect: " << std::endl;
+                    bool connected = modbusTcp.openModbusTcpConnection("127.0.0.1", 502);
+
+                    if (connected)
+                    {
+                        std::vector<int> values = modbusTcp.readModbusTcpRegisters(0, 10, 1, 3);
+                        for (int i = 0; i < values.size(); i++)
+                        {
+                            std::cout << "Register " << i << ": " << values[i] << std::endl;
+                        }
+                    }
+
                     // Open a  window to configure the connection
-                    ImGui::OpenPopup("Connect to Modbus TCP/IP");
+                    // ImGui::OpenPopup("Connect to Modbus TCP/IP");
                 }
                 if (ImGui::MenuItem("Conncet to Modbus RTU"))
                 {
-                    //Open demo window
+                    // Open demo window
                     show_demo_window = true;
                 }
 
@@ -113,36 +128,49 @@ int main()
         // Now you can create your window
         ImGui::Begin("Device List");
         {
-           ImGui::Button("Add Device", ImVec2(100, 20));
+            ImGui::Button("Add Device", ImVec2(100, 20));
         }
         ImGui::End(); // End of Hello, ImGUI! window
-    
-    
-    ImGui::End(); // End of DockSpace
 
+        ImGui::End(); // End of DockSpace
 
-    // Rendering
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-// Update Platform and Renderer bindings
-if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-{
-    GLFWwindow* backup_current_context = glfwGetCurrentContext();
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault();
-    glfwMakeContextCurrent(backup_current_context);
-}
-
+        // Update Platform and Renderer bindings
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow *backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
 
         glfwSwapBuffers(window);
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 
+
+    modbusTcp.closeModbusTcpConnection();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
+
+class ImguiManager
+{
+
+public:
+    ImguiManager::ImguiManager()
+    {
+    }
+
+    ImguiManager::~ImguiManager()
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+    
+    }
+};
