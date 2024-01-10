@@ -13,7 +13,10 @@ add_executable(ModbusMaven
         vendor/imgui_impl_opengl3.cpp
         src/modbus_tcp.h
         src/modbus_tcp.cpp
-        src/main.cpp)
+        src/main.cpp
+        src/windows/deviceWindow.cpp
+        src/windows/deviceWindow.h
+        )
 
 # Link winsock2 library
 target_link_libraries(ModbusMaven wsock32 ws2_32)

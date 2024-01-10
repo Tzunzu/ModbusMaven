@@ -7,11 +7,13 @@
 #include "../vendor/imgui_impl_glfw.h"
 #include "../vendor/imgui_impl_opengl3.h"
 #include "Modbus_Tcp.h"
+#include "windows/deviceWindow.h"
 
 #define GLSL_VERSION "#version 330"
 
 static ModbusTcp modbusTcp;
-
+static int deviceWindowCounter = 0;
+static std::vector<DeviceWindow> deviceWindows;
 int main()
 {
 
@@ -83,7 +85,6 @@ int main()
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
-
         // create a menu bar
         if (ImGui::BeginMenuBar())
         {
@@ -128,11 +129,34 @@ int main()
         // Now you can create your window
         ImGui::Begin("Device List");
         {
-            ImGui::Button("Add Device", ImVec2(100, 20));
+            // In your render loop:
+            if (ImGui::Button("Add Device", ImVec2(100, 20)))
+            {
+                
+
+                std::string windowName;
+                    
+                windowName = "Device " + std::to_string(deviceWindows.size());
+					
+                // Create a new device window
+                   DeviceWindow Window =  DeviceWindow(windowName);
+                
+                  deviceWindows.push_back(Window);
+
+            }
+            
+            for (int i = 0; i < deviceWindows.size(); i++)
+            {
+				// Render the device window 
+                deviceWindows[i].render();
+                
+            }
+
         }
         ImGui::End(); // End of Hello, ImGUI! window
-
         ImGui::End(); // End of DockSpace
+
+
 
         // Rendering
         ImGui::Render();
@@ -150,27 +174,8 @@ int main()
         glfwSwapBuffers(window);
     }
 
-
-
     modbusTcp.closeModbusTcpConnection();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
-
-class ImguiManager
-{
-
-public:
-    ImguiManager::ImguiManager()
-    {
-    }
-
-    ImguiManager::~ImguiManager()
-    {
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-    
-    }
-};
