@@ -14,9 +14,9 @@ class DeviceWindow {
 
 private: 
         std::string m_WindowName;
-        bool is_selected;
+        
         const char* current_item;
-      
+        int current_item_index;
 
 public:
 
@@ -26,16 +26,15 @@ public:
 private:
     int deviceId = 0;
     int functionCode = 0;
-    int numRegisters = 0;
+    int numRegisters = 10;
 
     struct Register {
         int address;
         int value;
-        char type[80];
-        char description[80];
+        const char* type;
+        char* description;
     };
-
-    
+        
     std::vector<Register> registers;
 };
 

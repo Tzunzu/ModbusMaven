@@ -43,6 +43,7 @@ bool isOpen = true;
             current_item = functionList[0];            // Here our selection is a single pointer stored outside the object.
         if (ImGui::BeginCombo("Function Code", current_item)) // The second parameter is the label previewed before opening the combo.
         {
+            bool is_selected;
             for (int n = 0; n < IM_ARRAYSIZE(functionList); n++)
             {
 				 is_selected = (current_item == functionList[n]); // You can store your selection however you want, outside or inside your objects
@@ -70,19 +71,45 @@ bool isOpen = true;
         ImGui::Text("Description");
         ImGui::NextColumn();
         ImGui::Separator();
+
         registers = std::vector<Register>(numRegisters);
+        const char* DataTypeList[7] = { "UInt16","Int16", "UInt32","Int32","UInt64","Int64" "Float", "Double" };
         for (int i = 0; i < numRegisters; i++) {
-            ImGui::Text("%d", registers[i].address);
+            ImGui::Text("%d" , registers[i].address);
             ImGui::NextColumn();
             ImGui::Text("%d", registers[i].value);
             ImGui::NextColumn();
-            const char* DataTypeLis[12] = { "Uint","int","Udint","dint","float","long"};
-            registers[i].type = DataTypeLis[0];
-            ImGui::BeginCombo("", &registers[i].type.c_str());
-            ImGui::Text("%s", registers[i].type.c_str());
+
+            
+            registers[i].type = DataTypeList[0];
+
+            std::string label = "##combo" + std::to_string(i);
+
+            if (ImGui::BeginCombo(label.c_str(), registers[i].type, ImGuiComboFlags_None)) { // The second parameter is the label previewed before opening the combo.
+                bool is_selected;
+                for (int n = 0; n < IM_ARRAYSIZE(DataTypeList); n++)
+                {
+                    is_selected = (current_item == DataTypeList[n]); // You can store your selection however you want, outside or inside your objects
+                    if (ImGui::Selectable(DataTypeList[n], is_selected))
+                        current_item = DataTypeList[n];
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                }
+                ImGui::EndCombo();
+            }
+                                  
             ImGui::NextColumn();
-            ImGui::InputText("%s", &registers[i].description.c_str());
+            label = "##input" + std::to_string(i);
+            char buffer[80];
+            strcpy(buffer, registers[i].description);
+            if (ImGui::InputText(label.c_str(), buffer, 80)) {
+                registers[i].description = buffer; // Update the description of the register
+            }
+            
+            
+
             ImGui::NextColumn();
+
         }
         ImGui::Columns(1);
         
